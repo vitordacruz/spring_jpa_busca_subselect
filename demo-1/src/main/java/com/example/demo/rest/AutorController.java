@@ -32,4 +32,8 @@ public class AutorController {
 		return ResponseEntity.ok(this.repository.buscarAutorPorNomeLivro(nomeLivro));
 	}
 	
+	@GetMapping("/livro2")
+	public ResponseEntity<List<Autor>> buscaPorNomeLivro2(@RequestParam String nomeLivro) {
+		return ResponseEntity.ok(this.repository.buscarAutorPorNomeLivroComJoin(nomeLivro));
+	}
 }

@@ -10,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
@@ -40,6 +41,27 @@ public class AutorRepositoryImpl implements AutorRepositoryCustom {
 		
 		criteriaQuery.select(rootAutor).distinct(true).where(criteriaBuilder.in(rootAutor.get("livros")
 				.get("id")).value(subquery));
+		
+		TypedQuery<Autor> query = entityManager.createQuery(criteriaQuery);
+		
+		return query.getResultList();
+	}
+	
+	@Override
+	public List<Autor> buscarAutorPorNomeLivroComJoin(String nomeLivro) {
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		
+		CriteriaQuery<Autor> criteriaQuery = 
+				  criteriaBuilder.createQuery(Autor.class);
+		Root<Autor> rootAutor = criteriaQuery.from(Autor.class);
+		Join<Autor, Livro> joinLivro = rootAutor.join("livros");
+		
+		Predicate predicate = criteriaBuilder.like(
+				criteriaBuilder.upper(joinLivro.get("nome")), 
+				"%" + nomeLivro.toUpperCase() + "%"
+				);
+		
+		criteriaQuery.select(rootAutor).distinct(true).where(predicate);
 		
 		TypedQuery<Autor> query = entityManager.createQuery(criteriaQuery);
 		
