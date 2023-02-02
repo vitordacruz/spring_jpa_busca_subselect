@@ -10,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 
@@ -29,8 +30,13 @@ public class AutorRepositoryImpl implements AutorRepositoryCustom {
 		Subquery<Integer> subquery = criteriaQuery.subquery(Integer.class);
 		Root<Livro> rootLivro = subquery.from(Livro.class);
 		
+		Predicate predicate = criteriaBuilder.like(
+				criteriaBuilder.upper(rootLivro.get("nome")), 
+				"%" + nomeLivro.toUpperCase() + "%"
+				);
+		
 		subquery.select(rootLivro.get("id")).distinct(true)
-			.where(criteriaBuilder.like(rootLivro.get("nome"), "%" + nomeLivro + "%"));
+			.where(predicate);
 		
 		criteriaQuery.select(rootAutor).distinct(true).where(criteriaBuilder.in(rootAutor.get("livros")
 				.get("id")).value(subquery));
